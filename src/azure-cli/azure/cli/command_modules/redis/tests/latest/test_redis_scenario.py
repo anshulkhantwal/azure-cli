@@ -448,3 +448,22 @@ class RedisCacheTests(ScenarioTest):
         if self.is_live:
             time.sleep(5*60)
         self.cmd('az redis create -n {name} -g {rg} -l {location} --sku {sku} --vm-size {size}')
+
+    @ResourceGroupPreparer(name_prefix='cli_test_redis')
+    def test_redis_cache_vm_size_update_with_publicNetworkAccessDisabled(self, resource_group):
+        self.kwargs = {
+            'rg': resource_group,
+            'name': self.create_random_name(prefix=name_prefix, length=24),
+            'location': location,
+            'sku': premium_sku,
+            'size': premium_size
+        }
+        self.is_live = True
+
+        self.cmd('az redis create -n {name} -g {rg} -l {location} --sku {sku} --vm-size {size}')
+        self.cmd('az redis update -n {name} -g {rg} --set "publicNetworkAccess=Disabled"')
+        if self.is_live:
+            time.sleep(5*60)
+        self.cmd('az redis update -n {name} -g {rg} --vm-size P2')
+        if self.is_live:
+            time.sleep(5*60)
